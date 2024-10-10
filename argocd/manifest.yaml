@@ -12,6 +12,8 @@ metadata:
     argocd.argoproj.io/secret-type: repository
 stringData:
   url: https://github.com/zabil/argocdboot.git
+  username: ""
+  password: ""
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: AppProject
