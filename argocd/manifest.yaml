@@ -1,0 +1,53 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: infra-tools
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: sadhak-repo
+  namespace: argocd
+  labels:
+    argocd.argoproj.io/secret-type: repository
+stringData:
+  url: https://github.com/zabil/argocdboot.git
+  username: github
+  password: ${GITHUB_PAT_TOKEN}
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: infra-tools-project
+  namespace: argocd
+spec:
+  description: "Project for infra tools"
+  sourceRepos:
+  - '*'
+  destinations:
+  - namespace: infra-tools
+    server: https://kubernetes.default.svc
+    name: in-cluster
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: tools-infra
+  namespace: argocd
+  labels:
+     name: infra-tools
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/zabil/argocdboot.git
+    targetRevision: HEAD
+    path: tools
+    directory:
+      recurse: true
+  destination:
+    namespace: infra-tools
+    server: https://kubernetes.default.svc
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
